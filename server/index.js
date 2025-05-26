@@ -56,11 +56,13 @@ app.post('/generate-meal', (req, res) => {
   });
 
   if (matched) {
+    console.log('Matched recipe:', matched);
     res.json({
       message: `How about: ${matched.name}`,
       recipe: matched,
     });
-  } else {
+  } 
+  else {
     res.json({
       message: 'No good matches found. Try more basic ingredients!',
       recipe: null,

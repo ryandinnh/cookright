@@ -15,14 +15,15 @@ function App() {
     });
 
     const data = await res.json();
+    console.log('Received from backend:', data); // 🔍 helpful debug line
     setResponse(data.message);
     setRecipe(data.recipe);
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1>CookRight 🍽️</h1>
-      <p>Enter ingredients separated by commas:</p>
+      <p>Enter your ingredients (comma-separated):</p>
       <input
         type="text"
         placeholder="e.g. chicken, broccoli, rice"
@@ -34,9 +35,14 @@ function App() {
 
       {response && (
         <div style={{ marginTop: '20px' }}>
-          <h3>{response}</h3>
-          {recipe && (
-            <div>
+          <h3>Server Response:</h3>
+          <p>{response}</p>
+          <pre>{JSON.stringify(recipe, null, 2)}</pre>
+
+
+          {recipe && recipe.name && (
+            <div style={{ marginTop: '10px', padding: '15px', border: '1px solid #ccc', borderRadius: '10px' }}>
+              <h4>{recipe.name}</h4>
               <p><strong>Instructions:</strong> {recipe.instructions}</p>
               <p><strong>Macros:</strong> {recipe.macros.protein}g protein, {recipe.macros.carbs}g carbs, {recipe.macros.fat}g fat</p>
             </div>
