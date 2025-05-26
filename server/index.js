@@ -14,9 +14,10 @@ app.get('/', (req, res) => {
 // Placeholder for future endpoint
 app.post('/generate-meal', (req, res) => {
   const { ingredients } = req.body;
-  // We'll add recipe logic here later
+  console.log('Ingredients received:', ingredients);
   res.json({ message: `You sent ${ingredients.length} ingredients.` });
 });
+
 
 // Start the server
 const PORT = 3001;
