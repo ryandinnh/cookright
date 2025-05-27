@@ -22,7 +22,7 @@ function App() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>CookRight 🍽️</h1>
+      <h1>CookRight</h1>
       <p>Enter your ingredients (comma-separated):</p>
       <input
         type="text"

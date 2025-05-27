@@ -1,3 +1,4 @@
+require('dotenv').config();
 // server/index.js
 const express = require('express');
 const cors = require('cors');
@@ -11,64 +12,60 @@ app.get('/', (req, res) => {
   res.send('CookRight backend is live!');
 });
 
-app.post('/generate-meal', (req, res) => {
+const axios = require('axios');
+
+app.post('/generate-meal', async (req, res) => {
   const { ingredients } = req.body;
-  console.log('Ingredients received:', ingredients);
 
-  // Hardcoded recipe list
-  const recipes = [
-    {
-      name: 'Garlic Chicken & Broccoli',
-      ingredients: ['chicken', 'broccoli', 'garlic'],
-      instructions: 'Stir fry chicken in olive oil, add minced garlic, then add steamed broccoli. Season with salt and pepper.',
-      macros: {
-        protein: 40,
-        carbs: 10,
-        fat: 12,
-      },
-    },
-    {
-      name: 'Beef Rice Bowl',
-      ingredients: ['beef', 'rice', 'soy sauce'],
-      instructions: 'Cook ground beef, add soy sauce and garlic, serve over steamed rice.',
-      macros: {
-        protein: 35,
-        carbs: 45,
-        fat: 15,
-      },
-    },
-    {
-      name: 'Egg Fried Rice',
-      ingredients: ['rice', 'eggs', 'onion'],
-      instructions: 'Scramble eggs, add rice and chopped onions, stir fry with soy sauce.',
-      macros: {
-        protein: 20,
-        carbs: 50,
-        fat: 10,
-      },
-    },
-  ];
+  try {
+    const ingredientQuery = ingredients.join(',+');
 
-  // Match: recipe with at least 2 overlapping ingredients
-  const matched = recipes.find(recipe => {
-    const overlap = recipe.ingredients.filter(ing => ingredients.includes(ing));
-    return overlap.length >= 2;
-  });
-
-  if (matched) {
-    console.log('Matched recipe:', matched);
-    res.json({
-      message: `How about: ${matched.name}`,
-      recipe: matched,
+    // Step 1: Get top matching recipe ID
+    const findResponse = await axios.get('https://api.spoonacular.com/recipes/findByIngredients', {
+      params: {
+        ingredients: ingredientQuery,
+        number: 1,
+        apiKey: process.env.SPOONACULAR_API_KEY,
+      },
     });
-  } 
-  else {
-    res.json({
-      message: 'No good matches found. Try more basic ingredients!',
-      recipe: null,
+
+    if (findResponse.data.length === 0) {
+      return res.json({ message: 'No recipes found for those ingredients.', recipe: null });
+    }
+
+    const recipeSummary = findResponse.data[0];
+    const recipeId = recipeSummary.id;
+
+    // Step 2: Get full recipe details
+    const detailResponse = await axios.get(`https://api.spoonacular.com/recipes/${recipeId}/information`, {
+      params: {
+        apiKey: process.env.SPOONACULAR_API_KEY,
+        includeNutrition: true,
+      },
     });
+
+    const data = detailResponse.data;
+
+    const recipe = {
+      name: data.title,
+      instructions: data.instructions || 'No instructions available.',
+      macros: {
+        protein: data.nutrition.nutrients.find(n => n.name === 'Protein')?.amount || 0,
+        carbs: data.nutrition.nutrients.find(n => n.name === 'Carbohydrates')?.amount || 0,
+        fat: data.nutrition.nutrients.find(n => n.name === 'Fat')?.amount || 0,
+      },
+    };
+
+    res.json({
+      message: `How about: ${recipe.name}`,
+      recipe,
+    });
+  } catch (err) {
+    console.error('Spoonacular error:', err.message);
+    res.status(500).json({ message: 'Failed to fetch recipe.', recipe: null });
   }
 });
+
 
 
 
