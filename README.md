@@ -42,9 +42,9 @@ CookRight takes the stress out of meal planning by:
 
 - [x] Ingredient input (static for now)
 - [x] Frontend/backend connection (local)
-- [ ] Send ingredients to backend
-- [ ] Generate meal ideas from ingredients
-- [ ] Show macros per meal
+- [x] Send ingredients to backend
+- [x] Generate meal ideas from ingredients
+- [x] Show macros per meal
 - [ ] Save/favorite meals
 - [ ] Mobile version (React Native)
 
